@@ -7,39 +7,41 @@
  */
 export function loadImage(file) {
 	return new Promise((resolve, reject) => {
-		const reader = new FileReader();
-		reader.onload = (e) => {
-			const img = new Image();
-			img.onload = () => {
-				resolve({
-					id: Date.now() + Math.random(),
-					file,
-					url: e.target.result,
-					originalUrl: e.target.result,
-					width: img.width,
-					height: img.height,
-					x: 100,
-					y: 100,
-					scale: 1,
-					scaleX: 1,
-					scaleY: 1,
-					rotation: 0,
-					zIndex: 0,
-					filters: {
-						invert: false,
-						grayscale: false,
-						sepia: false,
-						brightness: 100,
-						contrast: 100,
-						saturate: 100
-					}
-				});
-			};
-			img.onerror = reject;
-			img.src = e.target.result;
+		const url = URL.createObjectURL(file);
+		const img = new Image();
+
+		img.onload = () => {
+			resolve({
+				id: Date.now() + Math.random(),
+				file,
+				url: url, // Use the Object URL
+				originalUrl: url,
+				width: img.width,
+				height: img.height,
+				x: 100,
+				y: 100,
+				scale: 1,
+				scaleX: 1,
+				scaleY: 1,
+				rotation: 0,
+				zIndex: 0,
+				filters: {
+					invert: false,
+					grayscale: false,
+					sepia: false,
+					brightness: 100,
+					contrast: 100,
+					saturate: 100
+				}
+			});
 		};
-		reader.onerror = reject;
-		reader.readAsDataURL(file);
+
+		img.onerror = () => {
+			URL.revokeObjectURL(url); // Clean up if load fails
+			reject(new Error("File format not supported"));
+		};
+
+		img.src = url;
 	});
 }
 

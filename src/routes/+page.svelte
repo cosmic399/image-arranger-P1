@@ -74,6 +74,10 @@
 	}
 
 	function handleImageDelete(id) {
+		const image = images.find((img) => img.id === id);
+		if (image && image.url.startsWith('blob:')) {
+			URL.revokeObjectURL(image.url);
+		}
 		images = images.filter((img) => img.id !== id);
 		if (selectedImageId === id) {
 			selectedImageId = null;
@@ -88,6 +92,11 @@
 
 	function clearAll() {
 		if (confirm('Clear all images?')) {
+			images.forEach((img) => {
+				if (img.url.startsWith('blob:')) {
+					URL.revokeObjectURL(img.url);
+				}
+			});
 			images = [];
 			selectedImageId = null;
 		}
@@ -133,7 +142,7 @@
 				alert(`Export failed: ${result.error}`);
 			}
 		} catch (error) {
-			console.error('Export error:', error);
+			// console.error('Export error:', error);
 			alert('Export failed. Please try again.');
 		} finally {
 			isExporting = false;
