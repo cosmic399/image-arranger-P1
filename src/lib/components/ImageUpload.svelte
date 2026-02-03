@@ -3,7 +3,7 @@
 	import { loadImage, isValidImageFile, formatFileSize } from '../utils/imageUtils.js';
 
 	let { onImagesAdded = () => {} } = $props();
-	
+
 	let isDragging = $state(false);
 	let fileInput = $state(null);
 
@@ -42,8 +42,11 @@
 			const images = await Promise.all(imagePromises);
 			onImagesAdded(images);
 		} catch (error) {
-			console.error('Error loading images:', error);
-			alert('Error loading images. Please try again.');
+			if (error.message === 'File format not supported') {
+				alert('File format not supported.');
+			} else {
+				alert('Error loading images. Please try again.');
+			}
 		}
 	}
 
@@ -53,7 +56,7 @@
 </script>
 
 <div
-	class="relative border-2 border-dashed rounded-xl p-6 transition-all duration-500 {isDragging
+	class="relative rounded-xl border-2 border-dashed p-6 transition-all duration-500 {isDragging
 		? 'border-cyan-400/60 bg-cyan-500/10 backdrop-blur-xl'
 		: 'border-white/20 bg-white/5 backdrop-blur-xl hover:border-white/40 hover:bg-white/10'}"
 	ondragover={handleDragOver}
@@ -73,18 +76,15 @@
 		onchange={handleFileSelect}
 	/>
 
-	<div class="flex flex-col items-center justify-center text-center space-y-3">
-		<div class="p-3 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 rounded-xl border border-white/20">
-			<Upload class="w-6 h-6 text-white/80" />
+	<div class="flex flex-col items-center justify-center space-y-3 text-center">
+		<div
+			class="rounded-xl border border-white/20 bg-gradient-to-br from-cyan-500/20 to-purple-500/20 p-3"
+		>
+			<Upload class="h-6 w-6 text-white/80" />
 		</div>
 		<div>
-			<p class="text-sm font-light text-white/80">
-				Drop or click to upload
-			</p>
-			<p class="text-xs text-white/50 mt-1 font-light">
-				PNG, JPG, GIF, WebP
-			</p>
+			<p class="text-sm font-light text-white/80">Drop or click to upload</p>
+			<p class="mt-1 text-xs font-light text-white/50">PNG, JPG, GIF, WebP</p>
 		</div>
 	</div>
 </div>
-
