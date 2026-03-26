@@ -4,45 +4,35 @@
 	let { image, onUpdate = () => {} } = $props();
 
 	function toggleFilter(filterName) {
-		const newFilters = {
-			...image.filters,
-			[filterName]: !image.filters[filterName]
-		};
+		const newFilters = { ...image.filters, [filterName]: !image.filters[filterName] };
 		onUpdate({ ...image, filters: newFilters });
 	}
 
 	function resetFilters() {
 		onUpdate({
 			...image,
-			filters: {
-				invert: false,
-				grayscale: false,
-				sepia: false,
-				brightness: 100,
-				contrast: 100,
-				saturate: 100
-			}
+			filters: { invert: false, grayscale: false, sepia: false, brightness: 100, contrast: 100, saturate: 100 }
 		});
 	}
 
 	function updateFilterValue(filterName, value) {
-		const newFilters = {
-			...image.filters,
-			[filterName]: parseInt(value)
-		};
+		const newFilters = { ...image.filters, [filterName]: parseInt(value) };
 		onUpdate({ ...image, filters: newFilters });
 	}
 </script>
 
 <div class="space-y-4">
 	<div class="flex items-center justify-between mb-4">
-		<h3 class="text-sm font-light text-white/80 uppercase tracking-wider flex items-center gap-2">
+		<h3 class="text-xs font-semibold uppercase tracking-wider flex items-center gap-2" style="color: var(--text-dim);">
 			<Palette class="w-4 h-4" />
 			Filters
 		</h3>
 		<button
 			onclick={resetFilters}
-			class="p-1.5 text-white/50 hover:text-white/80 hover:bg-white/10 rounded-lg transition-all duration-200"
+			class="p-1.5 rounded-lg transition-all duration-200"
+			style="color: var(--text-muted); background: transparent;"
+			onmouseenter={(e) => { e.currentTarget.style.background = 'var(--tile-bg)'; e.currentTarget.style.color = 'var(--text-sub)'; }}
+			onmouseleave={(e) => { e.currentTarget.style.background = 'transparent'; e.currentTarget.style.color = 'var(--text-muted)'; }}
 			title="Reset Filters"
 		>
 			<RotateCcw class="w-4 h-4" />
@@ -53,72 +43,53 @@
 	<div class="grid grid-cols-2 gap-2">
 		<button
 			onclick={() => toggleFilter('invert')}
-			class="p-3 rounded-xl border-2 transition-all duration-300 {image.filters.invert
-				? 'border-cyan-400 bg-cyan-500/20 text-cyan-300'
-				: 'border-white/20 bg-white/5 text-white/70 hover:border-white/40 hover:bg-white/10'}"
+			class="p-3 rounded-xl border-2 transition-all duration-300"
+			style={image.filters.invert
+				? 'border-color: var(--accent); background: var(--accent-soft); color: var(--accent);'
+				: 'border-color: var(--tile-border); background: var(--tile-bg); color: var(--text-dim);'}
 		>
 			<div class="flex items-center gap-2 justify-center">
-				<ImageOff class="w-4 h-4" />
-				<span class="text-xs font-light">Negative</span>
+				<ImageOff class="w-4 h-4 flex-shrink-0" />
+				<span class="text-xs font-medium">Negative</span>
 			</div>
 		</button>
 		<button
 			onclick={() => toggleFilter('grayscale')}
-			class="p-3 rounded-xl border-2 transition-all duration-300 {image.filters.grayscale
-				? 'border-cyan-400 bg-cyan-500/20 text-cyan-300'
-				: 'border-white/20 bg-white/5 text-white/70 hover:border-white/40 hover:bg-white/10'}"
+			class="p-3 rounded-xl border-2 transition-all duration-300"
+			style={image.filters.grayscale
+				? 'border-color: var(--accent); background: var(--accent-soft); color: var(--accent);'
+				: 'border-color: var(--tile-border); background: var(--tile-bg); color: var(--text-dim);'}
 		>
 			<div class="flex items-center gap-2 justify-center">
-				<ImageOff class="w-4 h-4" />
-				<span class="text-xs font-light">Grayscale</span>
+				<ImageOff class="w-4 h-4 flex-shrink-0" />
+				<span class="text-xs font-medium">Grayscale</span>
 			</div>
 		</button>
 	</div>
 
 	<!-- Slider Controls -->
-	<div class="space-y-3">
-		<div>
-			<label for="brightness-slider" class="text-xs text-white/60 mb-1 block font-light">
-				Brightness: {image.filters.brightness}%
-			</label>
-			<input
-				id="brightness-slider"
-				type="range"
-				min="0"
-				max="200"
-				value={image.filters.brightness}
-				oninput={(e) => updateFilterValue('brightness', e.target.value)}
-				class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-			/>
-		</div>
-		<div>
-			<label for="contrast-slider" class="text-xs text-white/60 mb-1 block font-light">
-				Contrast: {image.filters.contrast}%
-			</label>
-			<input
-				id="contrast-slider"
-				type="range"
-				min="0"
-				max="200"
-				value={image.filters.contrast}
-				oninput={(e) => updateFilterValue('contrast', e.target.value)}
-				class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-			/>
-		</div>
-		<div>
-			<label for="saturate-slider" class="text-xs text-white/60 mb-1 block font-light">
-				Saturation: {image.filters.saturate}%
-			</label>
-			<input
-				id="saturate-slider"
-				type="range"
-				min="0"
-				max="200"
-				value={image.filters.saturate}
-				oninput={(e) => updateFilterValue('saturate', e.target.value)}
-				class="w-full h-1.5 bg-white/10 rounded-lg appearance-none cursor-pointer accent-cyan-500"
-			/>
-		</div>
+	<div class="space-y-4">
+		{#each [
+			{ key: 'brightness', label: 'Brightness', value: image.filters.brightness },
+			{ key: 'contrast',   label: 'Contrast',   value: image.filters.contrast   },
+			{ key: 'saturate',   label: 'Saturation', value: image.filters.saturate   }
+		] as slider}
+			<div>
+				<div class="flex items-center justify-between mb-1.5">
+					<label for="filter-{slider.key}" class="text-xs font-medium" style="color: var(--text-dim);">{slider.label}</label>
+					<span class="text-xs tabular-nums" style="color: var(--accent);">{slider.value}%</span>
+				</div>
+				<input
+					id="filter-{slider.key}"
+					type="range"
+					min="0"
+					max="200"
+					value={slider.value}
+					oninput={(e) => updateFilterValue(slider.key, e.target.value)}
+					class="w-full h-1.5 rounded-lg appearance-none cursor-pointer"
+					style="background: var(--slider-track); accent-color: var(--accent);"
+				/>
+			</div>
+		{/each}
 	</div>
 </div>
-

@@ -1,1 +1,130 @@
+@import url('https://fonts.googleapis.com/css2?family=Inter:ital,opsz,wght@0,14..32,100..900;1,14..32,100..900&family=Outfit:wght@300;400;500;600;700&display=swap');
 @import 'tailwindcss';
+
+/* ===================================================
+   Brand Color Tokens
+   =================================================== */
+@theme {
+  --color-lime:    #C5F40E;
+  --color-pink:    #FF2D78;
+  --color-teal:    #00E5CC;
+  --color-violet:  #7C3AED;
+  --color-amber:   #F59E0B;
+}
+
+/* Smooth global theme transitions */
+*, *::before, *::after {
+  transition-property: color, background-color, border-color, box-shadow, opacity, fill, stroke;
+  transition-duration: 200ms;
+  transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+/* ====================================================
+   DORAEMON SKY Theme (Default — "Professional")
+   Deep sky blue + golden yellow + white glass
+   ==================================================== */
+:root {
+  /* App background — Doraemon's iconic blue, deep → bright */
+  --app-bg-from:  #062B6E;
+  --app-bg-via:   #0B5EA8;
+  --app-bg-to:    #1A8FD1;
+
+  /* Panel & surface — frosted white glass on blue */
+  --panel-bg:           rgba(255, 255, 255, 0.10);
+  --panel-bg-hover:     rgba(255, 255, 255, 0.18);
+  --panel-border:       rgba(255, 255, 255, 0.18);
+  --panel-border-hover: rgba(255, 255, 255, 0.38);
+
+  /* Header */
+  --header-bg:     rgba(6, 43, 110, 0.82);
+  --header-border: rgba(255, 255, 255, 0.12);
+
+  /* Typography — white on blue */
+  --text-main:    #FFFFFF;
+  --text-sub:     rgba(255, 255, 255, 0.88);
+  --text-dim:     rgba(255, 255, 255, 0.62);
+  --text-muted:   rgba(255, 255, 255, 0.40);
+
+  /* Accent — Doraemon's golden bell yellow */
+  --accent:        #FFD60A;
+  --accent-soft:   rgba(255, 214, 10, 0.15);
+  --accent-border: rgba(255, 214, 10, 0.40);
+  --glow-shadow:   0 4px 28px rgba(255, 214, 10, 0.30), 0 1px 6px rgba(0,0,0,0.25);
+
+  /* Active selection outline */
+  --active-border: #FFD60A;
+  --glass-blur:    blur(18px);
+  --glass-border:  rgba(255, 214, 10, 0.28);
+
+  /* Filter / toggle tiles */
+  --tile-bg:           rgba(255, 255, 255, 0.08);
+  --tile-border:       rgba(255, 255, 255, 0.16);
+  --tile-border-hover: rgba(255, 255, 255, 0.32);
+
+  /* Slider track */
+  --slider-track: rgba(255, 255, 255, 0.15);
+
+  /* Scrollbar */
+  --scrollbar-track: rgba(255, 255, 255, 0.05);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.22);
+  --scrollbar-hover: rgba(255, 255, 255, 0.38);
+
+  /* Misc */
+  --divider: rgba(255, 255, 255, 0.12);
+}
+
+/* ====================================================
+   DARK Theme — "Ultimate Electric" (Pure Black + Lime)
+   ==================================================== */
+.theme-ultimate {
+  --app-bg-from:  #000000;
+  --app-bg-via:   #050505;
+  --app-bg-to:    #000000;
+
+  --panel-bg:          rgba(197, 244, 14, 0.04);
+  --panel-bg-hover:    rgba(197, 244, 14, 0.08);
+  --panel-border:      rgba(197, 244, 14, 0.10);
+  --panel-border-hover:rgba(197, 244, 14, 0.22);
+
+  --header-bg:     rgba(0, 0, 0, 0.80);
+  --header-border: rgba(197, 244, 14, 0.08);
+
+  --text-main:    #F4F4F5;
+  --text-sub:     #D4D4D8;
+  --text-dim:     #A1A1AA;
+  --text-muted:   #71717A;
+
+  --accent:        #C5F40E;
+  --accent-soft:   rgba(197, 244, 14, 0.10);
+  --accent-border: rgba(197, 244, 14, 0.30);
+  --glow-shadow:   0 0 24px rgba(197, 244, 14, 0.25), inset 0 0 16px rgba(197, 244, 14, 0.08);
+
+  --active-border: #C5F40E;
+  --glass-blur:    blur(20px);
+  --glass-border:  rgba(197, 244, 14, 0.35);
+
+  --tile-bg:           rgba(255, 255, 255, 0.05);
+  --tile-border:       rgba(255, 255, 255, 0.12);
+  --tile-border-hover: rgba(255, 255, 255, 0.28);
+
+  --slider-track: rgba(255, 255, 255, 0.10);
+
+  --scrollbar-track: rgba(255, 255, 255, 0.04);
+  --scrollbar-thumb: rgba(255, 255, 255, 0.18);
+  --scrollbar-hover: rgba(255, 255, 255, 0.30);
+
+  --divider: rgba(255, 255, 255, 0.08);
+}
+
+/* ====================================================
+   Base
+   ==================================================== */
+html, body {
+  background-color: var(--app-bg-from);
+  color: var(--text-main);
+  margin: 0;
+  padding: 0;
+  font-family: 'Inter', 'Outfit', system-ui, -apple-system, sans-serif;
+  -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
+}

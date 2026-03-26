@@ -1,0 +1,230 @@
+# 🎨 Image Arranger — Complete Project Documentation
+
+> **Project**: `image-arranger-P1`
+> **Repo**: https://github.com/cosmic399/image-arranger-P1
+> **Local Path**: `c:\Users\gcsr2\AIMG`
+> **Dev URL**: http://localhost:5173
+> **Stack**: SvelteKit 5 · Tailwind CSS 4 · Bun · jsPDF · Lucide Svelte
+
+---
+
+## 📖 What It Does
+
+Image Arranger is a browser-based collage/layout tool. You upload images, then freely position, resize, rotate, crop, filter, and annotate them on an **A4-sized canvas** (794×1123px). When done, you export everything as a PNG, JPG, or PDF. It supports **multiple pages** so you can build multi-page documents.
+
+---
+
+## 🗂️ Project Structure
+
+```
+AIMG/
+├── src/
+│   ├── routes/
+│   │   ├── +page.svelte         ← Main app UI & state
+│   │   ├── +layout.svelte       ← Root layout
+│   │   └── layout.css
+│   └── lib/
+│       ├── components/
+│       │   ├── ImageUpload.svelte   ← Upload area
+│       │   ├── ImageItem.svelte     ← Per-image draggable item
+│       │   ├── ImageFilters.svelte  ← Filter panel (sidebar)
+│       │   ├── Canvas.svelte        ← The A4 canvas area
+│       │   └── CropModal.svelte     ← Full-screen crop dialog
+│       └── utils/
+│           ├── exportUtils.js       ← PNG / JPEG / PDF export
+│           └── imageUtils.js        ← CSS filter builder, crop helper
+├── package.json
+└── bun.lock
+```
+
+---
+
+## ✨ Feature Reference
+
+### 1. 🖼️ Image Upload (`ImageUpload.svelte`)
+| How | Details |
+|-----|---------|
+| Click to browse | Opens file picker |
+| Drag & drop | Drop images directly onto the upload zone |
+| Supported formats | PNG, JPG, GIF, WebP |
+| Auto-fit | Oversized images are automatically scaled to fit 80% of the A4 canvas |
+| Auto-center | Each new image is placed in the center of the canvas, offset by 20px per image to avoid full overlap |
+
+---
+
+### 2. 🖱️ Drag & Move (Canvas)
+- **Click + drag** any image to move it freely on the canvas.
+- Movement is **unbounded** – you can push images off-canvas while dragging; they snap back to the edge on release (elastic clamping).
+- Dragging starts after the pointer moves **>3px**, so a click doesn't accidentally move an image.
+- **Pointer capture** is used so dragging continues even if the mouse briefly leaves the image.
+
+---
+
+### 3. 📐 Resize (`ImageItem.svelte`)
+- Four corner handles (**NW, NE, SW, SE**) appear when an image is selected.
+- **Default**: Aspect-ratio locked resize (drag corner = proportional scaling).
+- **Hold Shift**: Free resize — width and height can be changed independently.
+- Side handles (**N, S, E, W**) also maintain aspect ratio by adjusting the opposite dimension proportionally.
+- Minimum size enforced: **20×20px**.
+
+---
+
+### 4. 🔄 Rotation (`ImageItem.svelte`)
+| Action | Result |
+|--------|--------|
+| **Rotation handle** (circle above image) | Free rotation — drag to any angle |
+| **Rotate button** (sidebar panel) | Snaps 90° clockwise each click |
+
+The rotation handle appears at the top-center of a selected image as a cyan circle on a short stem.
+
+---
+
+### 5. ✂️ Crop (`CropModal.svelte`)
+Clicking the **Crop icon** on the selection toolbar opens a fullscreen crop modal.
+
+**Inside the crop modal:**
+| Feature | How to Use |
+|---------|------------|
+| **Pan image** | Click + drag the image behind the crop box |
+| **Zoom image** | Mouse wheel, or use +/- buttons |
+| **Move crop box** | Click + drag inside the cyan crop box |
+| **Resize crop box** | Drag the 4 corner handles of the crop box |
+| **Rule-of-thirds grid** | Displayed inside the crop box automatically |
+| **Aspect ratio presets** | Buttons: **Free**, **1:1**, **4:3**, **16:9** |
+| **Apply** | Click "Apply Crop" to confirm; replaces the image's source URL |
+| **Cancel / Escape** | Close without changing anything |
+
+Crops are **non-destructive** in the sense that the original image URL is still stored for future re-crop reference.
+
+---
+
+### 6. 💬 Text Overlays (`ImageItem.svelte`)
+Three types of text overlays are available via the selection side-panel:
+
+| Button | Label | Behavior |
+|--------|-------|----------|
+| `T` icon | **Inner text** | Semi-transparent bar at the **bottom inside** the image |
+| `TOP` | **Outer top text** | Bar placed **above** the image |
+| `BOT` | **Outer bottom text** | Bar placed **below** the image |
+
+**Text features:**
+- Editable textarea — just click and type.
+- **Auto-resize**: The text box grows vertically as you type.
+- **Font size**: Drag the resize handle (thin bar at the top of the text area) up or down to change font size (range: 10–200px).
+- **Remove**: Hover over the text area to see a red ✕ button in the corner.
+- All text is rendered into the export (PNG/PDF) with proper word wrapping.
+
+---
+
+### 7. 🎨 Image Filters (`ImageFilters.svelte`)
+The filter panel appears in the **left sidebar** when an image is selected.
+
+| Filter | Type | Range |
+|--------|------|-------|
+| **Negative** | Toggle | On / Off |
+| **Grayscale** | Toggle | On / Off |
+| **Brightness** | Slider | 0% – 200% (default 100%) |
+| **Contrast** | Slider | 0% – 200% (default 100%) |
+| **Saturation** | Slider | 0% – 200% (default 100%) |
+
+- All filters apply in real-time using CSS `filter`.
+- **Reset** button (↺ icon) resets all filters to defaults.
+- Filters are preserved when exported to PNG/PDF.
+
+---
+
+### 8. 📄 Multi-Page Support (`+page.svelte`)
+Image Arranger supports multiple A4 pages in a single session.
+
+| Control | Location | Action |
+|---------|----------|--------|
+| `‹` `›` arrows | Header | Navigate previous/next page |
+| Page input box | Header | Type a page number + Enter to jump |
+| `+` button | Header | Add a new blank page after the current page |
+| `🗑️ Delete` button | Header | Delete the current page (clears images if it's the last page) |
+
+- Each page holds its own independent set of images.
+- Images are scoped to their page — switching pages deselects the current image.
+- **PDF export** renders all pages as separate PDF pages in one file.
+- **PNG export** is single-page only (disabled if you have more than 1 page).
+
+---
+
+### 9. 🔍 Canvas Zoom (`+page.svelte`)
+- A **slider in the header** controls the canvas zoom.
+- Range: **25% – 200%** of actual A4 size.
+- The current zoom percentage is displayed next to the slider.
+- Zoom only affects the editing view — exports are always at full A4 resolution.
+
+---
+
+### 10. 📤 Export (`exportUtils.js`)
+| Format | Button | Details |
+|--------|--------|---------|
+| **PNG** | Blue gradient button | Single-page only; 2× resolution (1588px wide); transparent supported |
+| **PDF** | Purple gradient button | Multi-page; each page is JPEG-compressed inside the PDF at A4 size |
+
+- Export renders a fresh off-screen `<canvas>` at **2× scale** for sharpness (not a screenshot).
+- All transforms (position, scale, rotation), filters, and text overlays are faithfully re-rendered.
+- File is automatically named with a timestamp, e.g. `image-arrangement-2026-03-26T15-30-00.pdf`.
+
+> **Note**: JPG export is implemented in code (`exportAsJPEG`) but not currently wired to a button in the UI.
+
+---
+
+### 11. 🗑️ Delete & Clear
+| Action | How |
+|--------|-----|
+| Delete one image | Select image → click **🗑️** in the side panel |
+| Clear all images on page | Click the **🗑️** icon in the image list header |
+| Delete the whole page | Click the **Delete** page button in the header |
+
+---
+
+### 12. 🖼️ Image List / Layer Panel (Sidebar)
+- Appears below the upload zone when at least one image is on the page.
+- Shows a **thumbnail**, **filename**, and **current dimensions** for each image.
+- Click any item to **select** that image and bring it to the front (highest z-index).
+- Selected image is highlighted with a cyan glow.
+- Scrollable panel with a custom scrollbar.
+
+---
+
+## 🛠️ Tech Stack
+
+| Library | Version | Role |
+|---------|---------|------|
+| SvelteKit | ^2.49 | App framework |
+| Svelte | ^5.45 | Reactivity (`$state`, `$derived`, `$effect` runes) |
+| Vite | ^7.2 | Dev server & bundler |
+| Tailwind CSS | ^4.1 | Utility CSS |
+| @tailwindcss/vite | ^4.1 | Tailwind Vite plugin |
+| jsPDF | ^3.0 | PDF generation |
+| lucide-svelte | ^0.561 | Icon set |
+| Bun | 1.3.x | Package manager & runtime |
+
+---
+
+## 🚀 Running the Project
+
+```bash
+# Install dependencies
+bun install
+
+# Start dev server (opens http://localhost:5173)
+bun run dev
+
+# Or open browser automatically
+bun run dev --open
+```
+
+---
+
+## 🔑 Key Design Decisions
+
+1. **A4 Canvas**: Fixed at 794×1123px (96 DPI equivalent). All positioning is in these pixel units.
+2. **Z-index layer management**: Every image has a `zIndex`. Selecting an image bumps it to `maxZ + 1`, placing it on top.
+3. **Virtual proxy position**: During dragging, a `virtualX/Y` state allows free movement that the DOM clamps for display — giving smooth edge behavior without restricting physics.
+4. **2× render scale for export**: The export canvas renders at 2× A4 resolution so the output isn't blurry on high-DPI screens.
+5. **Pointer capture**: `setPointerCapture` is used so dragging never "breaks" even if the mouse moves fast off the image element.
+6. **No backend**: 100% client-side. Images are stored as Blob URLs. Exporting uses `canvas.toBlob()` and a synthetic `<a>` click.

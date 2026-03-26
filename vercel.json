@@ -1,0 +1,10 @@
+{
+  "functions": {
+    "api/arrange.py": {
+      "runtime": "python3.12"
+    }
+  },
+  "rewrites": [
+    { "source": "/api/arrange", "destination": "/api/arrange.py" }
+  ]
+}

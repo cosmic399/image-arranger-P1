@@ -188,6 +188,15 @@
 			onSelect();
 		}
 
+		if (isDragging && isDirty) {
+			// Sync clamped bounding box back to store on release, so export matches preview
+			onUpdate({
+				...image,
+				x: clampedX,
+				y: clampedY
+			});
+		}
+
 		isDragging = false;
 		isResizing = false;
 		isRotating = false;
@@ -461,14 +470,16 @@
 		image.hasOuterBottom && bottomTextAreaRef ? bottomTextAreaRef.closest('.group').offsetHeight : 0
 	);
 
-	const minX = 0;
-	// When rotating, outer bounding box math is extremely complex to clamp perfectly.
-	// For simplicity and per standard CSS behavior, we clamp the core X/Y to the canvas,
-	// adjusted by the top/bottom text offset assuming 0 rotation. (Rotation naturally exceeds bounds if large)
-	const minY = $derived(outerTopOffset);
+	const isRotated90 = $derived(Math.abs((image.rotation || 0) % 180) === 90);
+	const vW = $derived(isRotated90 ? dH : dW);
+	const vH = $derived(isRotated90 ? dW : dH);
 
-	const maxX = $derived(794 - dW); // A4 Width approx
-	const maxY = $derived(1123 - dH - outerBottomOffset); // A4 Height approx
+	// Allow image to bleed off the canvas (leave at least 40px visible to grab)
+	const minX = $derived(Math.min(0, -vW/2 - dW/2 + 40));
+	const minY = $derived(Math.min(outerTopOffset, -vH/2 - dH/2 + 40 + outerTopOffset));
+	
+	const maxX = $derived(Math.max(794 - dW, 794 + vW/2 - dW/2 - 40)); 
+	const maxY = $derived(Math.max(1123 - dH - outerBottomOffset, 1123 + vH/2 - dH/2 - 40 - outerBottomOffset)); 
 
 	const clampedX = $derived(Math.max(minX, Math.min(maxX, image.x)));
 	const clampedY = $derived(Math.max(minY, Math.min(maxY, image.y)));
@@ -483,7 +494,7 @@
 <!-- Outer Wrapper: Positioning & Selection (Non-Rotating Blue Box) -->
 <div
 	class="image-wrapper absolute cursor-move select-none {isSelected
-		? 'outline outline-2 outline-offset-2 outline-cyan-400'
+		? 'ring-2 ring-[var(--active-border)] ring-opacity-50 ring-offset-2'
 		: ''} {isDragging ? 'z-[9999] scale-[1.02] shadow-2xl' : ''}"
 	style="
 		top: 0;
@@ -495,7 +506,7 @@
         backface-visibility: hidden;
         perspective: 1000px;
         will-change: transform;
-        transition: box-shadow 0.2s ease;
+        transition: {isDragging || isResizing || isRotating ? 'none' : 'transform 0.8s cubic-bezier(0.2,0.8,0.2,1), width 0.8s ease, height 0.8s ease'};
 		touch-action: none;
     "
 	onpointerdown={handlePointerDown}
@@ -578,7 +589,11 @@
 
 	<!-- Inner Content -->
 	<div
-		class="image-content h-full w-full"
+		class="image-content relative overflow-hidden rounded-xl border transition-all duration-300 h-full w-full
+			{isSelected 
+				? 'border-[var(--active-border)] shadow-[var(--glow-shadow)]' 
+				: 'border-[var(--glass-border)] hover:border-[var(--active-border)] hover:shadow-[var(--glow-shadow)]'}
+			bg-[var(--panel-bg)] backdrop-blur-[var(--glass-blur)]"
 		style="transform: {transformStringContent}; transform-origin: center center;"
 	>
 		<!-- Outer Top Textbox -->
